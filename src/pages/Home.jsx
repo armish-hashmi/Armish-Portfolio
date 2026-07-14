@@ -3,33 +3,38 @@ import { useNavigate } from "react-router-dom";
 import NebulaFlow from "@/components/lightswind/nebula-flow";
 import "./Home.css";
 
+import img1 from "../assets/img1.png";
+import img2 from "../assets/img2.png";
+import img3 from "../assets/img3.png";
+import img4 from "../assets/img4.png";
+
 const projects = [
   {
     id: 1,
     title: "Meal Atelier",
     tags: ["Meal Planning", "Web design", "JSON"],
-    image: "src/assets/Screenshot From 2026-06-02 22-21-31 (Edited).png",
+    image: img1,
     link: "https://github.com/armish-hashmi/TheMealAtelier",
   },
   {
     id: 2,
     title: "OnePager",
     tags: ["React", "Web design", "Development"],
-    image: "src/assets/Screenshot From 2026-07-14 14-29-51.png",
+    image: img2,
     link: "https://onepager-website-el55rnv41-armish-hashmis-projects.vercel.app/",
   },
   {
     id: 3,
     title: "Personal Portfolio",
     tags: ["React","Node.js" ,"Web design", "Development"],
-    image: "src/assets/Screenshot From 2026-07-14 14-31-16.png",
+    image: img3,
     link: "https://portfolio-app-zeta-ashy.vercel.app/",
   },
   {
     id: 4,
     title: "TODO List",
     tags: ["Simple React", "Development"],
-    image: "src/assets/Screenshot From 2026-07-14 14-33-34.png",
+    image: img4,
     link: "https://todo-list-six-phi-86.vercel.app/",
   },
 ];
