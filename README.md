@@ -1,3 +1,3 @@
-# Armish Hashmi - Personal PortfolioHome
+# Armish Hashmi - Personal Portfolio
 
 
