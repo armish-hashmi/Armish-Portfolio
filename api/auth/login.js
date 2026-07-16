@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { sql } from '../lib/db.js';
+import { getSql } from '../lib/db.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -19,6 +19,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
+    const sql = getSql();
     const normalizedEmail = email.toLowerCase().trim();
 
     const [user] = await sql`SELECT id, name, email, password FROM users WHERE email = ${normalizedEmail}`;

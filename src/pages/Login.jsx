@@ -26,12 +26,22 @@ export default function LoginForm() {
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
+      // Read as text first — if the server crashed or the route doesn't
+      // exist, it may return an HTML error page instead of JSON, and
+      // res.json() would throw a confusing "Unexpected token" error.
+      const rawText = await res.text();
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        throw new Error('Unexpected response from server. Please try again in a moment.');
+      }
 
       if (!res.ok) {
         throw new Error(data.error || 'Login failed');
       }
 
+      // Save the token so future requests can prove who the user is
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 

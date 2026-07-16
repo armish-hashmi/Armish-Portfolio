@@ -1,8 +1,9 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { sql } from '../lib/db.js';
+import { getSql } from '../lib/db.js';
 
 export default async function handler(req, res) {
+  // Allow the frontend (even on a different domain) to call this endpoint
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -22,6 +23,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
+    const sql = getSql();
     const normalizedEmail = email.toLowerCase().trim();
 
     const existing = await sql`SELECT id FROM users WHERE email = ${normalizedEmail}`;

@@ -38,7 +38,13 @@ export default function SignUpForm() {
         }),
       });
 
-      const data = await res.json();
+      const rawText = await res.text();
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        throw new Error('Unexpected response from server. Please try again in a moment.');
+      }
 
       if (!res.ok) {
         throw new Error(data.error || 'Sign up failed');
