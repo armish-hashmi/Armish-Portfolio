@@ -1,27 +1,57 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './FormStyles.css';
 
 export default function SignUpForm() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
+  const [status, setStatus] = useState({ loading: false, error: '', success: '' });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords don't match!");
       return;
     }
-    console.log('Sign Up submitted:', formData);
+
+    setStatus({ loading: true, error: '', success: '' });
+
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Sign up failed');
+      }
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      setStatus({ loading: false, error: '', success: 'Account created! Redirecting...' });
+      navigate('/');
+    } catch (err) {
+      setStatus({ loading: false, error: err.message, success: '' });
+    }
   };
 
   return (
@@ -29,7 +59,7 @@ export default function SignUpForm() {
       <div className="form-card">
         <h2>Create Account</h2>
         <p className="form-subtitle">Join us to get started</p>
-        
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="name">Full Name</label>
@@ -83,8 +113,11 @@ export default function SignUpForm() {
             />
           </div>
 
-          <button type="submit" className="submit-btn">
-            Create Account
+          {status.error && <p className="form-error">{status.error}</p>}
+          {status.success && <p className="form-success">{status.success}</p>}
+
+          <button type="submit" className="submit-btn" disabled={status.loading}>
+            {status.loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
 

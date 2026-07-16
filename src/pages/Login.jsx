@@ -1,22 +1,45 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './FormStyles.css';
 
 export default function LoginForm() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+  const [status, setStatus] = useState({ loading: false, error: '', success: '' });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login submitted:', formData);
-    
+    setStatus({ loading: true, error: '', success: '' });
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      setStatus({ loading: false, error: '', success: 'Logged in successfully!' });
+      navigate('/');
+    } catch (err) {
+      setStatus({ loading: false, error: err.message, success: '' });
+    }
   };
 
   return (
@@ -24,7 +47,7 @@ export default function LoginForm() {
       <div className="form-card">
         <h2>Welcome Back</h2>
         <p className="form-subtitle">Please enter your details to sign in</p>
-        
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
@@ -52,8 +75,11 @@ export default function LoginForm() {
             />
           </div>
 
-          <button type="submit" className="submit-btn">
-            Sign In
+          {status.error && <p className="form-error">{status.error}</p>}
+          {status.success && <p className="form-success">{status.success}</p>}
+
+          <button type="submit" className="submit-btn" disabled={status.loading}>
+            {status.loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 

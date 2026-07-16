@@ -10,7 +10,7 @@ import './FormStyles.css';
   return (
     <nav className="navbar">
       <Link to="/" className="nav-logo">
-        Armish Hashmi Portfolio
+        Armish Hashmi
       </Link>
       <ul className="nav-links">
         <li>
@@ -27,14 +27,6 @@ import './FormStyles.css';
             className={`nav-btn ${location.pathname === '/signup' ? 'active' : ''}`}
           >
             Sign Up
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/contact"
-            className={`nav-btn ${location.pathname === '/contact' ? 'active' : ''}`}
-          >
-            Contact
           </Link>
         </li>
       </ul>
