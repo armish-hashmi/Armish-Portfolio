@@ -1,5 +1,3 @@
-import nodemailer from 'nodemailer';
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -17,26 +15,34 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER, 
-        pass: process.env.EMAIL_PASS, 
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY is not set. Add it in your Vercel project environment variables.');
+    }
+
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        from: process.env.CONTACT_FROM_EMAIL || 'onboarding@resend.dev',
+        to: process.env.CONTACT_RECEIVER_EMAIL,
+        reply_to: email,
+        subject: `New message: ${subject}`,
+        text: `From: ${name} (${email})\n\n${message}`,
+        html: `
+          <p><strong>From:</strong> ${name} (${email})</p>
+          <p><strong>Subject:</strong> ${subject}</p>
+          <p>${message.replace(/\n/g, '<br/>')}</p>
+        `,
+      }),
     });
 
-    await transporter.sendMail({
-      from: `"Portfolio Contact Form" <${process.env.EMAIL_USER}>`,
-      to: process.env.CONTACT_RECEIVER_EMAIL || process.env.EMAIL_USER,
-      replyTo: email,
-      subject: `New message: ${subject}`,
-      text: `From: ${name} (${email})\n\n${message}`,
-      html: `
-        <p><strong>From:</strong> ${name} (${email})</p>
-        <p><strong>Subject:</strong> ${subject}</p>
-        <p>${message.replace(/\n/g, '<br/>')}</p>
-      `,
-    });
+    if (!response.ok) {
+      const errBody = await response.json().catch(() => ({}));
+      throw new Error(errBody.message || 'Failed to send message via Resend');
+    }
 
     return res.status(200).json({ message: 'Message sent successfully' });
   } catch (err) {
